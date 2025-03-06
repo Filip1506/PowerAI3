@@ -7,40 +7,22 @@
 </head>
 <body>
     <h2>Indtast dine oplysninger</h2>
-    <form method="POST">
-        <label>Navn:</label>
-        <input type="text" name="navn" required><br><br>
 
-        <label>Alder:</label>
-        <input type="number" name="alder" required><br><br>
+    {% if besked %}
+        <p style="color: green;"><strong>{{ besked }}</strong></p>
+    {% else %}
+        <form method="POST">
+            <label>Navn:</label>
+            <input type="text" name="navn" required><br><br>
 
-        <label>By:</label>
-        <input type="text" name="by" required><br><br>
+            <label>Alder:</label>
+            <input type="number" name="alder" required><br><br>
 
-        <button type="submit">Send</button>
-    </form>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="da">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brugerinfo</title>
-</head>
-<body>
-    <h2>Indtast dine oplysninger</h2>
-    <form method="POST">
-        <label>Navn:</label>
-        <input type="text" name="navn" required><br><br>
+            <label>By:</label>
+            <input type="text" name="by" required><br><br>
 
-        <label>Alder:</label>
-        <input type="number" name="alder" required><br><br>
-
-        <label>By:</label>
-        <input type="text" name="by" required><br><br>
-
-        <button type="submit">Send</button>
-    </form>
+            <button type="submit">Send</button>
+        </form>
+    {% endif %}
 </body>
 </html>
