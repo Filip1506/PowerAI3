@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script>
+        let step = 0; // Start med trin 0
+
+        async function sendSvar() {
+            let input = document.getElementById("brugerSvar");
+            let chatBox = document.getElementById("chatBox");
+
+            let svar = input.value.trim();
+            input.value = "";  // Tøm inputfeltet efter svar
+
+            if (svar === "") return; // Stop hvis input er tomt
+
+            // Vis brugerens svar
+            chatBox.innerHTML += `<p><b>Du:</b> ${svar}</p>`;
+
+            let response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ svar: svar, step: step })
+            });
+
+            let data = await response.json();
+
+            // Hvis chatbotten er færdig
+            if (data.done) {
+                chatBox.innerHTML += `<p><b>Bot:</b> ${data.besked}</p>`;
+                document.getElementById("sendBtn").disabled = true;
+            } else {
+                chatBox.innerHTML += `<p><b>Bot:</b> ${data.besked}</p>`;
+                step = data.step;  // Opdater step for næste trin
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Velkommen til chatbotten</h1>
+    <div id="chatBox">
+        <p><b>Bot:</b> Hej! Hvad er dit navn?</p>
+    </div>
+    <input type="text" id="brugerSvar">
+    <button id="sendBtn" onclick="sendSvar()">Send</button>
+</body>
+</html>
