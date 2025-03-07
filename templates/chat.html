@@ -11,31 +11,33 @@
             let input = document.getElementById("brugerSvar");
             let chatBox = document.getElementById("chatBox");
 
-            let svar = input.value.trim();
+            let svar = input.value;
             input.value = "";  // Tøm inputfeltet efter svar
 
-            if (svar === "") return; // Stop hvis input er tomt
+            // Find det sidste step i chatten
+            let step = parseInt(chatBox.getAttribute("data-step") || "1"); 
 
             // Vis brugerens svar
-            chatBox.innerHTML += `<p><b>Du:</b> ${svar}</p>`;
+            chatBox.innerHTML += "<p><b>Du:</b> " + svar + "</p>";
 
             let response = await fetch("/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ svar: svar, step: step })
+                body: JSON.stringify({ svar: svar, step: step })  // Send step
             });
 
             let data = await response.json();
 
-            // Hvis chatbotten er færdig
+            // Opdater step hvis chatbotten ikke er færdig
             if (data.done) {
-                chatBox.innerHTML += `<p><b>Bot:</b> ${data.besked}</p>`;
+                chatBox.innerHTML += "<p><b>Bot:</b> " + data.besked + "</p>";
                 document.getElementById("sendBtn").disabled = true;
             } else {
-                chatBox.innerHTML += `<p><b>Bot:</b> ${data.besked}</p>`;
-                step = data.step;  // Opdater step for næste trin
+                chatBox.innerHTML += "<p><b>Bot:</b> " + data.besked + "</p>";
+                chatBox.setAttribute("data-step", data.step);  // Opdater step
             }
         }
+
     </script>
 </head>
 <body>

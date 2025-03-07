@@ -23,27 +23,35 @@ with get_db_connection() as conn:
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
-    step = session.get("step", 0)  # Hvilket trin brugeren er på
-    svar = data.get("svar", "").strip()  # Brugerens svar
+    step = int(data.get("step", 0))  # Hvilket trin brugeren er på
+    svar = data.get("svar", "").strip()  # Brugerens seneste svar
 
     # Liste over spørgsmål i chatbotten
-    spørgsmål = ["Hvad er dit navn?", "Hvor gammel er du?", "Hvor bor du?"]
+    spørgsmål = [
+        "Hvad er dit navn?",
+        "Hvor gammel er du?",
+        "Hvor bor du?"
+    ]
 
-    if step == 0:
+    # Gem svar baseret på trin
+    session = data.get("session", {"navn": "", "alder": "", "by": ""})
+
+    if step == 1:
         session["navn"] = svar
-    elif step == 1:
-        session["alder"] = svar
     elif step == 2:
+        session["alder"] = svar
+    elif step == 3:
         session["by"] = svar
-        # Gem i databasen
+        # Gem data i databasen
         with get_db_connection() as conn:
             conn.execute("INSERT INTO users (navn, alder, by) VALUES (?, ?, ?)", 
                          (session["navn"], session["alder"], session["by"]))
             conn.commit()
         return jsonify({"besked": f"Tak {session['navn']}! Dine oplysninger er gemt.", "done": True})
 
-    session["step"] = step + 1  # Opdater step
-    return jsonify({"besked": spørgsmål[step], "step": session["step"]})
+    # Send næste spørgsmål
+    return jsonify({"besked": spørgsmål[step], "step": step + 1, "session": session})
+
 
 @app.route("/")
 def index():
