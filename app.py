@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_session import Session
 import psycopg2
+import os
 
 DATABASE_URL = "postgresql://powerai3_db_user:fkP4gIaTrJsVnKxQcH1WfqC5wroVYeaw@dpg-cv53r3dumphs73fdbqf0-a/powerai3_db"
 
@@ -12,7 +13,7 @@ Session(app)
 
 # Opret eller forbind til databasen
 def get_db_connection():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))  # Brug miljøvariabel fra Render
     return conn
 
 # Opret tabel, hvis den ikke eksisterer
@@ -52,9 +53,13 @@ def chat():
         session["by"] = svar
         # Gem data i databasen
         with get_db_connection() as conn:
-            conn.execute("INSERT INTO users (navn, alder, by) VALUES (?, ?, ?)", 
-                         (session["navn"], session["alder"], session["by"]))
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO users (navn, alder, by) VALUES (%s, %s, %s)",
+                    (session["navn"], session["alder"], session["by"])
+        )
             conn.commit()
+
         return jsonify({"besked": f"Tak {session['navn']}! Dine oplysninger er gemt.", "done": True})
 
     # Send næste spørgsmål
