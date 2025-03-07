@@ -7,7 +7,6 @@ DATABASE_URL = "postgresql://powerai3_db_user:fkP4gIaTrJsVnKxQcH1WfqC5wroVYeaw@d
 app = Flask(__name__, template_folder="templates")
 
 # Konfigurer Flask-Session til at gemme sessionsdata i filsystemet
-app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
