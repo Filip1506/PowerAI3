@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session
 from flask_session import Session
-import sqlite3
+import psycopg2
+
+DATABASE_URL = "postgresql://powerai3_db_user:fkP4gIaTrJsVnKxQcH1WfqC5wroVYeaw@dpg-cv53r3dumphs73fdbqf0-a/powerai3_db"
 
 app = Flask(__name__, template_folder="templates")
 
@@ -11,14 +13,21 @@ Session(app)
 
 # Opret eller forbind til databasen
 def get_db_connection():
-    conn = sqlite3.connect("data.db")
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 # Opret tabel, hvis den ikke eksisterer
 with get_db_connection() as conn:
-    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, navn TEXT, alder INTEGER, by TEXT)")
-    conn.commit()
+    with conn.cursor() as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                navn TEXT NOT NULL,
+                alder INTEGER,
+                by TEXT
+            )
+        """)
+        conn.commit()
 
 @app.route("/chat", methods=["POST"])
 def chat():
